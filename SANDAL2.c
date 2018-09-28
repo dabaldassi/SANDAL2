@@ -108,6 +108,10 @@ static void freeWindow(Window *fen){
         if(fen->window){
             SDL_DestroyWindow(fen->window);
         }
+	if(fen->freeData && fen->data) {
+	    fen->freeData(fen->data);
+	    fen->data = NULL;
+	}
     }
 }
 
@@ -139,6 +143,7 @@ int createWindow(int width,int height,const char *title,int SDLFlags,int backgro
 	    fen->origin[1] = 0;
             fen->next = NULL;
 	    fen->data = NULL;
+	    fen->freeData = NULL;
             fen->events.action=NULL;
             fen->events.onClick=NULL;
             fen->events.unClick=NULL;

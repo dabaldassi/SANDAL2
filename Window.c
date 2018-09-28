@@ -299,4 +299,11 @@ int getDataWindow(void ** data){
 
     return !(_windows_SANDAL2 && _windows_SANDAL2->current);
 }
+
+int setFreeDataWindow(void (*freeData)(void *)){
+  if(_windows_SANDAL2 && _windows_SANDAL2->current)
+	_windows_SANDAL2->current->freeData = freeData;
+
+    return !(_windows_SANDAL2 && _windows_SANDAL2->current);
+}
 /* ------------------------------------------------------- */

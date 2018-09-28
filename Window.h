@@ -26,11 +26,11 @@ extern "C" {
  * @brief free p if it is not NULL
  */
 #define PFREE(p){				\
-        if(p){					\
+    if(p){					\
             free(p);                            \
         }                                       \
-    }
-
+}
+  
 struct ListElement;
 struct ListDCElement;
 
@@ -93,6 +93,8 @@ typedef struct Window{
     /**< current list of elements to display */
     void * data;
     /**< data of the window */
+    void (*freeData)(void *);
+    /**< free data of the window */
     int stop;
     /**< tells whether or not all elements where removed */
     int state;
@@ -272,6 +274,13 @@ int setDataWindow(void * data);
  * @return 0 if it was possible, 1 if not
  */
 int getDataWindow(void ** data);
+
+  /**
+   * @brief set a function to free window data
+   * @param freeData : function to free data
+   * @return 0 if it was possible, 1 if not
+   */
+int setFreeDataWindow(void (*freeData)(void *));
 /* ------------------------------------------------------- */
 
 #ifdef __cplusplus
