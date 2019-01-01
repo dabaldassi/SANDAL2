@@ -117,6 +117,7 @@ static void freeWindow(Window *fen){
 
 int createWindow(int width,int height,const char *title,int SDLFlags,int background[4],int displayCode){
     Window *fen=(Window*)malloc(sizeof(*fen));
+    Window * tmp = NULL;
     int error = 1;
 
     fen->window=SDL_CreateWindow(title,
@@ -144,17 +145,21 @@ int createWindow(int width,int height,const char *title,int SDLFlags,int backgro
             fen->next = NULL;
 	    fen->data = NULL;
 	    fen->freeData = NULL;
-            fen->events.action=NULL;
-            fen->events.onClick=NULL;
-            fen->events.unClick=NULL;
-            fen->events.keyPress=NULL;
-            fen->events.keyReleased=NULL;
+            fen->events.action = NULL;
+            fen->events.onClick = NULL;
+            fen->events.unClick = NULL;
+            fen->events.keyPress = NULL;
+            fen->events.keyReleased = NULL;
+	    fen->events.wheel = NULL;
+	    fen->events.onFocus = NULL;
+	    fen->events.unFocus = NULL;
             fen->toDelete=0;
             copyColor(fen->background,background);
             fen->liste = _initListElement();
             fen->current = NULL;
 	    fen->stop = 0;
 	    fen->state = SDLFlags&SDL_WINDOW_FULLSCREEN;
+	    fen->focused = 1;
             if(!fen->liste){
                 SDL_DestroyWindow(fen->window);
                 SDL_DestroyRenderer(fen->renderer);
@@ -166,6 +171,7 @@ int createWindow(int width,int height,const char *title,int SDLFlags,int backgro
                         _windows_SANDAL2->first = fen;
                         _windows_SANDAL2->last = fen;
                         _windows_SANDAL2->current = fen;
+			_windows_SANDAL2->count = 1;
                         error = 0;
                     }else{
                         SDL_DestroyWindow(fen->window);
@@ -173,8 +179,16 @@ int createWindow(int width,int height,const char *title,int SDLFlags,int backgro
                         free(fen);
                     }
                 }else{
+		    tmp = _windows_SANDAL2->first;
+		    while(tmp){
+			tmp->focused = 0;
+			tmp = tmp->next;
+		    }
                     _windows_SANDAL2->last->next=fen;
                     _windows_SANDAL2->last=fen;
+		    _windows_SANDAL2->current = fen;
+		    ++_windows_SANDAL2->count;
+		    error = 0;
                 }
             }
         }else{
@@ -308,16 +322,16 @@ int updateWindow(){
             while(lp && !_windows_SANDAL2->current->close){
                 ele=&(lp->first);
                 while(*ele && !_windows_SANDAL2->current->close){
-                    if(isDisplaiedElement((*ele)->element)){
+                    if(!(*ele)->deleted && isDisplaiedElement((*ele)->element)){
                         if((*ele)->element->events.action){
                             (*ele)->element->events.action((*ele)->element);
                         }
                         if((*ele)->element->animation->size && (*ele)->element->animation->size){
                             (*ele)->element->animation->current->wasChanged++;
-                            if((*ele)->element->animation->current->sens && (*ele)->element->animation->current->wasChanged >= (*ele)->element->animation->current->current->lifespan){
+                            if((*ele)->element->animation->current->side && (*ele)->element->animation->current->wasChanged >= (*ele)->element->animation->current->current->lifespan){
                                 i=0;
                                 do{
-                                    if((*ele)->element->animation->current->sens == -1){
+                                    if((*ele)->element->animation->current->side == -1){
                                         previousSpriteElement((*ele)->element);
                                     }else{
                                         nextSpriteElement((*ele)->element);
@@ -379,7 +393,7 @@ int displayWindow(){
                 /* affichage des elements */
                 ele=lp->first;
                 while(ele){
-                    if(isDisplaiedElement(ele->element)){
+                    if(!ele->deleted && isDisplaiedElement(ele->element)){
                         r.x=(ele->element->x - _windows_SANDAL2->current->origin[0])*_windows_SANDAL2->current->width/_windows_SANDAL2->current->initWidth;
                         r.y=(ele->element->y - _windows_SANDAL2->current->origin[1])*_windows_SANDAL2->current->height/_windows_SANDAL2->current->initHeight;
                         r.w=ele->element->width*_windows_SANDAL2->current->width/_windows_SANDAL2->current->initWidth;
@@ -459,7 +473,7 @@ int clickWindow(SDL_MouseButtonEvent button){
             while(lp && !_windows_SANDAL2->current->close){
                 e=lp->first;
                 while(e && !_windows_SANDAL2->current->close){
-                    if(isDisplaiedElement(e->element)){
+                    if(!e->deleted && isDisplaiedElement(e->element)){
                         newX=x*_windows_SANDAL2->current->initWidth/_windows_SANDAL2->current->width + _windows_SANDAL2->current->origin[0];
                         newY=y*_windows_SANDAL2->current->initHeight/_windows_SANDAL2->current->height + _windows_SANDAL2->current->origin[1];
                         if(e->element->rotation != 0.f && e->element->coulBlock[0]==-1){
@@ -533,7 +547,7 @@ int onMouseMotion(int x, int y){
             while(lp && !_windows_SANDAL2->current->close){
                 e=lp->first;
                 while(e && !_windows_SANDAL2->current->close){
-                    if(isDisplaiedElement(e->element)){
+                    if(!e->deleted && isDisplaiedElement(e->element)){
                         newX=x*_windows_SANDAL2->current->initWidth/_windows_SANDAL2->current->width + _windows_SANDAL2->current->origin[0];
                         newY=y*_windows_SANDAL2->current->initHeight/_windows_SANDAL2->current->height + _windows_SANDAL2->current->origin[1];
                         if(e->element->rotation != 0.f && e->element->coulBlock[0]==-1){
@@ -613,7 +627,7 @@ int unclickWindow(SDL_MouseButtonEvent button){
             while(lp && !_windows_SANDAL2->current->close){
                 e=lp->first;
                 while(e && !_windows_SANDAL2->current->close){
-                    if(isDisplaiedElement(e->element)){
+                    if(!e->deleted && isDisplaiedElement(e->element)){
                         newX=(x*_windows_SANDAL2->current->initWidth/_windows_SANDAL2->current->width-e->element->x)/(e->element->width) + _windows_SANDAL2->current->origin[0];
                         newY=(y*_windows_SANDAL2->current->initHeight/_windows_SANDAL2->current->height-e->element->y)/(e->element->height) + _windows_SANDAL2->current->origin[1];
                         if(e->element->rotation != 0.f && e->element->coulBlock[0]==-1){
@@ -672,7 +686,7 @@ int keyPressedWindow(int c){
             while(lp && !_windows_SANDAL2->current->close){
                 e=lp->first;
                 while(e && !_windows_SANDAL2->current->close){
-                    if(e->element->events.keyPress && (!e->element->entry || e->element->entry->isSelect)){
+                    if(!e->deleted && e->element->events.keyPress && (!e->element->entry || e->element->entry->isSelect)){
                         e->element->events.keyPress(e->element,c);
                     }
                     e=e->next;
@@ -709,7 +723,7 @@ int keyReleasedWindow(int c){
             while(lp && !_windows_SANDAL2->current->close){
                 e=lp->first;
                 while(e && !_windows_SANDAL2->current->close){
-                    if(e->element->events.keyReleased && (!e->element->entry || e->element->entry->isSelect)){
+                    if(!e->deleted && e->element->events.keyReleased && (!e->element->entry || e->element->entry->isSelect)){
                         e->element->events.keyReleased(e->element,c);
                     }
                     e=e->next;
@@ -727,6 +741,58 @@ int keyReleasedWindow(int c){
 }
 
 
+int wheelWindow(int y){
+    int error = 1;
+  
+    if(_windows_SANDAL2 && _windows_SANDAL2->current){
+	error = 0;
+
+	/* fait l'action de la fenetre courante */
+	if(_windows_SANDAL2->current->events.wheel){
+	    _windows_SANDAL2->current->events.wheel(y);
+	}
+    }
+  
+    return error;
+}
+
+
+int onFocusedWindow(){
+    int error = 1;
+
+    if(_windows_SANDAL2 && _windows_SANDAL2->current){
+	error = 0;
+
+	/* fait l'action de la fenetre courante */
+	if(_windows_SANDAL2->current->events.onFocus){
+	    _windows_SANDAL2->current->events.onFocus();
+	}
+
+	_windows_SANDAL2->current->focused = 1;
+    }
+
+    return error;
+}
+
+
+int unFocusedWindow(){
+    int error = 1;
+
+    if(_windows_SANDAL2 && _windows_SANDAL2->current){
+	error = 0;
+
+	/* fait l'action de la fenetre courante */
+	if(_windows_SANDAL2->current->events.unFocus){
+	    _windows_SANDAL2->current->events.unFocus();
+	}
+	
+	_windows_SANDAL2->current->focused = 0;
+    }
+
+    return error;
+}
+
+
 unsigned long updateAllWindow(){
     Window * w, * tmp;
     unsigned long error = 1;
@@ -735,45 +801,48 @@ unsigned long updateAllWindow(){
   
     if(_windows_SANDAL2){
         error = 0;
-        w=_windows_SANDAL2->current;
-        initIteratorWindow();
+        w = _windows_SANDAL2->first;
+	tmp = _windows_SANDAL2->current;
         do{
-            tmp=_windows_SANDAL2->current;
-            err=updateWindow()*bit;
+            _windows_SANDAL2->current = w;
+            err = updateWindow() * bit;
             if(!error && err){
                 error=1;
             }
-            error+=(unsigned)err*bit;
-            bit*=2;
-            if(tmp==_windows_SANDAL2->current){
-                nextWindow();
+            error += (unsigned)err * bit;
+            bit *= 2;
+            if(w != _windows_SANDAL2->current){
+		tmp = _windows_SANDAL2->current;
             }
-        }while(_windows_SANDAL2->current);
-        _windows_SANDAL2->current=w;
+	    w = w->next;
+        }while(w);
+        _windows_SANDAL2->current = tmp;
     }
 
     return error;
 }
 
 unsigned long displayAllWindow(){
-    Window * w;
+    Window * w, * tmp;
     unsigned long error = 1;
     int err;
     int bit = 2;
   
     if(_windows_SANDAL2){
         error = 0;
-        w=_windows_SANDAL2->current;
-        initIteratorWindow();
+        w = _windows_SANDAL2->first;
+	tmp = _windows_SANDAL2->current;
         do{
-            err=displayWindow()*bit;
+            _windows_SANDAL2->current = w;
+            err = displayWindow()*bit;
             if(!error && err){
                 error=1;
             }
-            error+=(unsigned)err*bit;
-            bit*=2;
-        }while(!nextWindow());
-        _windows_SANDAL2->current=w;
+            error += (unsigned)err*bit;
+            bit *= 2;
+	    w = w->next;
+        }while(w);
+        _windows_SANDAL2->current = tmp;
     }
 
     return error;
@@ -787,21 +856,22 @@ unsigned long clickAllWindow(SDL_MouseButtonEvent button){
   
     if(_windows_SANDAL2){
         error = 0;
-        w=_windows_SANDAL2->current;
-        initIteratorWindow();
+        w = _windows_SANDAL2->first;
+	tmp = _windows_SANDAL2->current;
         do{
-            tmp=_windows_SANDAL2->current;
+            _windows_SANDAL2->current = w;
             err=clickWindow(button)*bit;
             if(!error && err){
                 error=1;
             }
             error+=(unsigned)err*bit;
             bit*=2;
-            if(tmp==_windows_SANDAL2->current){
-                nextWindow();
+            if(w != _windows_SANDAL2->current){
+		tmp = _windows_SANDAL2->current;
             }
-        }while(_windows_SANDAL2->current);
-        _windows_SANDAL2->current=w;
+	    w = w->next;
+        }while(w);
+        _windows_SANDAL2->current = tmp;
     }
 
     return error;
@@ -815,21 +885,22 @@ unsigned long unclickAllWindow(SDL_MouseButtonEvent button){
   
     if(_windows_SANDAL2){
         error = 0;
-        w=_windows_SANDAL2->current;
-        initIteratorWindow();
+        w = _windows_SANDAL2->first;
+	tmp = _windows_SANDAL2->current;
         do{
-            tmp=_windows_SANDAL2->current;
+            _windows_SANDAL2->current = w;
             err=unclickWindow(button)*bit;
             if(!error && err){
                 error=1;
             }
             error+=(unsigned)err*bit;
             bit*=2;
-            if(tmp==_windows_SANDAL2->current){
-                nextWindow();
+            if(w != _windows_SANDAL2->current){
+		tmp = _windows_SANDAL2->current;
             }
-        }while(_windows_SANDAL2->current);
-        _windows_SANDAL2->current=w;
+	    w = w->next;
+        }while(w);
+        _windows_SANDAL2->current = tmp;
     }
 
     return error;
@@ -843,21 +914,22 @@ unsigned long keyPressedAllWindow(char c){
   
     if(_windows_SANDAL2){
         error = 0;
-        w=_windows_SANDAL2->current;
-        initIteratorWindow();
+        w = _windows_SANDAL2->first;
+	tmp = _windows_SANDAL2->current;
         do{
-            tmp=_windows_SANDAL2->current;
+            _windows_SANDAL2->current = w;
             err=keyPressedWindow(c)*bit;
             if(!error && err){
                 error=1;
             }
             error+=(unsigned)err*bit;
             bit*=2;
-            if(tmp==_windows_SANDAL2->current){
-                nextWindow();
+            if(w != _windows_SANDAL2->current){
+		tmp = _windows_SANDAL2->current;
             }
-        }while(_windows_SANDAL2->current);
-        _windows_SANDAL2->current=w;
+	    w = w->next;
+        }while(w);
+        _windows_SANDAL2->current = tmp;
     }
 
     return error;
@@ -871,21 +943,22 @@ unsigned long keyReleasedAllWindow(char c){
   
     if(_windows_SANDAL2){
         error = 0;
-        w=_windows_SANDAL2->current;
-        initIteratorWindow();
+        w = _windows_SANDAL2->first;
+	tmp = _windows_SANDAL2->current;
         do{
-            tmp=_windows_SANDAL2->current;
+            _windows_SANDAL2->current = w;
             err=keyReleasedWindow(c)*bit;
             if(!error && err){
                 error=1;
             }
             error+=(unsigned)err*bit;
             bit*=2;
-            if(tmp==_windows_SANDAL2->current){
-                nextWindow();
+            if(w != _windows_SANDAL2->current){
+		tmp = _windows_SANDAL2->current;
             }
-        }while(_windows_SANDAL2->current);
-        _windows_SANDAL2->current=w;
+	    w = w->next;
+        }while(w);
+        _windows_SANDAL2->current = tmp;
     }
 
     return error;
@@ -893,41 +966,67 @@ unsigned long keyReleasedAllWindow(char c){
 /* ------------------------------------------------------- */
 
 
-unsigned long wheelWindow(int y)
-{
-  unsigned long error = 1;
-  Window * w;
-  
-  if(_windows_SANDAL2 && _windows_SANDAL2->current){
-    error = 0;
-
-    /* fait l'action de la fenetre courante */
-    if(_windows_SANDAL2->current->events.wheel){
-      _windows_SANDAL2->current->events.wheel(y);
-    }
-    
-  }
-  
-  return error;
-}
 
 /* ------------------------------------------------------- 
  * Gestion d'evenement
  */
 int PollEvent(unsigned long * error){
-    SDL_Event event;
-    int quit = 0;
-    unsigned long err = 0;
+    SDL_Event       event;
+    int             quit    = 0;
+    unsigned long   err     = 0;
+    Window        * w       = NULL;
+    Window        * focused = NULL;
 
     while(SDL_PollEvent(&event)){
         switch(event.type){
         case SDL_WINDOWEVENT:
-            if(event.window.event == SDL_WINDOWEVENT_CLOSE)  {
-                quit = 1;
-            }
+	    switch(event.window.event){
+	    case SDL_WINDOWEVENT_CLOSE:
+		if(_windows_SANDAL2 && _windows_SANDAL2->count){
+		    --_windows_SANDAL2->count;
+		    closeWindow();
+		}else{
+		    quit = 1;
+		}
+		break;
+	    case SDL_WINDOWEVENT_FOCUS_GAINED:
+		if(_windows_SANDAL2 && _windows_SANDAL2->first){
+		    w = _windows_SANDAL2->first;
+		    while(w && SDL_GetWindowID(w->window) != event.window.windowID){
+			w = w->next;
+		    }
+		    if(w){
+			_windows_SANDAL2->current = w;
+			err = err|onFocusedWindow();
+		    }
+		}
+		break;
+	    case SDL_WINDOWEVENT_FOCUS_LOST:
+		if(_windows_SANDAL2 && _windows_SANDAL2->first){
+		    w = _windows_SANDAL2->first;
+		    while(w && SDL_GetWindowID(w->window) != event.window.windowID){
+			w = w->next;
+		    }
+		    if(w){
+			focused = _windows_SANDAL2->current;
+			_windows_SANDAL2->current = w;
+			err = err|unFocusedWindow();
+			_windows_SANDAL2->current = focused;
+			if(focused == w){
+			    _windows_SANDAL2->current = NULL;
+			}
+		    }
+		}
+		break;
+	    }
             break;
         case SDL_QUIT :   
-            quit = 1;
+	    if(_windows_SANDAL2 && _windows_SANDAL2->count){
+		--_windows_SANDAL2->count;
+		closeWindow();
+	    }else{
+		quit = 1;
+	    }
             break;
         case SDL_KEYUP:
             err=err|keyReleasedWindow(event.key.keysym.sym);

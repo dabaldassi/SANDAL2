@@ -66,6 +66,7 @@ static int addPtrElement(ListPtrElement* l,Element* e){
                 }
                 l->last=p;
                 p->next=NULL;
+		p->deleted = 0;
                 p->element=e;
                 error = 0;
             }
@@ -246,41 +247,64 @@ void _cleanElement(){
                 e=&((*lp)->first);
 		prev = NULL;
                 while(e && *e && _windows_SANDAL2->current->toDelete){
-                    switch((*e)->element->deleted-((*e)->element->deleted==2 && (*e)->element->codes->size==1)){
-                    case 1:
-                    case 2:
-                        if((*ldc)->code==(*e)->element->deleteCode){
-                            etmp=*e;
-			    delDisplayCode((*e)->element->codes, (*ldc)->code);
-			    if(!((*e)->element->codes->first))
-				_freeElement((*e)->element);
-                            *e=(*e)->next;
-			    if(etmp == (*lp)->last)
-				(*lp)->last = prev;
-                            free(etmp);
-                            _windows_SANDAL2->current->toDelete--;
-                        }else{
+		    if((*e)->deleted == 1){
+			(*e)->element->deleted = 0;
+			(*e)->element->deleteCode = 0;
+			etmp = *e;
+			*e = (*e)->next;
+			if(etmp == (*lp)->last)
+			    (*lp)->last = prev;
+			else if(etmp == (*lp)->first)
+			    (*lp)->first = (*lp)->first->next;
+			free(etmp);
+			etmp = NULL;
+		    }else if((*e)->deleted == -1){
+			--_windows_SANDAL2->current->toDelete;
+			(*e)->deleted = 0;
+		    }else{
+			switch((*e)->element->deleted){
+			case 1:
+			case 2:
+			    if((*ldc)->code==(*e)->element->deleteCode){
+				(*e)->element->deleted = 0;
+				(*e)->element->deleteCode = 0;
+				etmp=*e;
+				delDisplayCode((*e)->element->codes, (*ldc)->code);
+				if(!((*e)->element->codes->first)){
+				    _freeElement((*e)->element);
+				}
+				*e=(*e)->next;
+				if(etmp == (*lp)->last)
+				    (*lp)->last = prev;
+				free(etmp);
+				_windows_SANDAL2->current->toDelete--;
+			    }else{
+				prev = *e;
+				e=&((*e)->next);
+			    }
+			    break;
+			case 3:
+			    if((*lp)->code==(*e)->element->deleteCode){
+				(*e)->element->deleted = 0;
+				(*e)->element->deleteCode = 0;
+				etmp=*e;
+				*e=(*e)->next;
+				if(etmp == (*lp)->last)
+				    (*lp)->last = prev;
+				else if(etmp == (*lp)->first)
+				    (*lp)->first = (*lp)->first->next;
+				free(etmp);
+				_windows_SANDAL2->current->toDelete--;
+			    }else{
+				prev = *e;
+				e=&((*e)->next);
+			    }
+			    break;
+			default:
 			    prev = *e;
-                            e=&((*e)->next);
-                        }
-                        break;
-                    case 3:
-                        if((*lp)->code==(*e)->element->deleteCode){
-                            etmp=*e;
-                            *e=(*e)->next;
-			    if(etmp == (*lp)->last)
-				(*lp)->last = prev;
-                            free(etmp);
-                            _windows_SANDAL2->current->toDelete--;
-                        }else{
-			    prev = *e;
-                            e=&((*e)->next);
-                        }
-                        break;
-                    default:
-			prev = *e;
-                        e=&((*e)->next);
-                    }
+			    e=&((*e)->next);
+			}
+		    }
                 }
                 if(!(*lp)->first){
                     ptmp=(*lp)->next;
@@ -358,7 +382,7 @@ void _freeElement(Element *e){
     }    
 }
 
-Element* createBlock(float x,float y,float width,float height,int couleur[4],int displayCode,int plan){
+Element* createBlock(float x,float y,float width,float height,int color[4],int displayCode,int plan){
     Element *e = NULL;
 
     if(_windows_SANDAL2 && _windows_SANDAL2->current){
@@ -376,7 +400,7 @@ Element* createBlock(float x,float y,float width,float height,int couleur[4],int
             e->rotation=0.f;
             e->rotSpeed=0.f;
 	    e->flip = SANDAL2_FLIP_NONE;
-            copyColor(e->coulBlock,couleur);
+            copyColor(e->coulBlock,color);
             e->codes=initListDisplayCode();
             addDisplayCode(e->codes,displayCode,1,plan);
             e->animation=initListAnimation();
@@ -515,12 +539,12 @@ Element* createImage(float x,float y,float width,float height,const char *image,
     return e;
 }
 
-Element* createButton(float x,float y,float width,float height,float texteSize,const char * font,const char * text,int textColor[4],int quality,int couleurBlock[4],int displayCode,int plan){
+Element* createButton(float x,float y,float width,float height,float texteSize,const char * font,const char * text,int textColor[4],int quality,int colorBlock[4],int displayCode,int plan){
     Element *e = NULL;
     Font * f;
 
     if(_windows_SANDAL2 && _windows_SANDAL2->current){
-        e=createBlock(x,y,width,height,couleurBlock,displayCode,plan);
+        e=createBlock(x,y,width,height,colorBlock,displayCode,plan);
         if(e){
             e->textSize=texteSize/100.f;
             f=createFont(font,text,textColor,quality);
@@ -559,13 +583,13 @@ Element* createButtonImage(float x,float y,float width,float height,float texteS
     return e;
 }
 
-Element* createEntry(float x,float y,float width,float height,float texteSize,const char * font, const char * text,int textColor[4],int quality,int couleurBlock[4],int displayCode,int plan,int min,int max,int isScripted){
+Element* createEntry(float x,float y,float width,float height,float texteSize,const char * font, const char * text,int textColor[4],int quality,int colorBlock[4],int displayCode,int plan,int min,int max,int isScripted){
     Element *e = NULL;
     Entry *ent;
     int i;
 
     if(_windows_SANDAL2 && _windows_SANDAL2->current){
-        e=createButton(x,y,width,height,texteSize,font,text,textColor,quality,couleurBlock,displayCode,plan);
+        e=createButton(x,y,width,height,texteSize,font,text,textColor,quality,colorBlock,displayCode,plan);
         if(e){
             ent=(Entry*)malloc(sizeof(*ent));
             if(ent){
@@ -576,12 +600,20 @@ Element* createEntry(float x,float y,float width,float height,float texteSize,co
                 PFREE(e->font->text);
                 e->font->text=(char*)malloc((max*2+1)*sizeof(*(e->font->text)));
                 if(e->font->text){
-                    for(i=0;i<max*2;++i){
-                        e->font->text[i]=' ';
+		    if(text){
+			for(i = 0; text[i] && i < max * 2; ++i){
+			    e->font->text[i] = text[i];
+			}
+		        ent->size = i;
+		    }else{
+			i = 0;
+			ent->size = 0;
+		    }
+                    for(; i < max * 2; ++i){
+                        e->font->text[i] = ' ';
                     }
                     e->font->text[max]='\0';
                     e->entry=ent;
-                    ent->size=0;
                 }else{
                     delElement(e);
                     _freeElement(e);
@@ -615,12 +647,20 @@ Element* createEntryImage(float x,float y,float width,float height,float texteSi
                 PFREE(e->font->text);
                 e->font->text=(char*)malloc((max*2+1)*sizeof(*(e->font->text)));
                 if(e->font->text){
-                    for(i=0;i<max*2;++i){
-                        e->font->text[i]=' ';
+		    if(text){
+			for(i = 0; text[i] && i < max * 2; ++i){
+			    e->font->text[i] = text[i];
+			}
+		        ent->size = i;
+		    }else{
+			i = 0;
+			ent->size = 0;
+		    }
+                    for(; i < max * 2; ++i){
+                        e->font->text[i] = ' ';
                     }
                     e->font->text[max]='\0';
                     e->entry=ent;
-                    ent->size=0;
                 }else{
                     delElement(e);
                     _freeElement(e);
@@ -1005,7 +1045,10 @@ int setImageTextureElement(Element *e,SDL_Texture * image){
 
     if(e){
         error = 0;
-        e->image=image;
+	if(e->image && e->image != image){
+	    SDL_DestroyTexture(e->image);
+	}
+        e->image = image;
     }
 
     return error;
@@ -1192,34 +1235,39 @@ int setPlanElement(Element *e,int displayCode,int plan){
 
     if(e && _windows_SANDAL2 && _windows_SANDAL2->current && _windows_SANDAL2->current->liste){
         d=e->codes->first;
-        while(d && d->code<displayCode){
+        while(d && d->code < displayCode){
             d=d->next;
         }
         if(d && d->code==displayCode && d->plan != plan){
             old = d->plan;
             d->plan = plan;
+	    /* searching for the list corresponding to the display code */
             ldc=_windows_SANDAL2->current->liste->first;
             while(ldc && ldc->code < displayCode){
                 ldc=ldc->next;
             }
             if(ldc && ldc->code == displayCode){
+		/* searching for the list corresponding to the old plan */
                 lp=&(ldc->first);
                 while(*lp && (*lp)->code > old){
-                    if((*lp)->code ==plan){
+                    if((*lp)->code == plan){
+			/* if a list corresponding to the new plan is find */
                         lpNew=lp;
                     }
                     lp=&((*lp)->next);
                 }
+		/* searching for the element */
                 cour=&((*lp)->first);
                 while(*cour && (*cour)->element!=e){
                     cour=&((*cour)->next);
                 }
-                if(*cour){
+                if(*cour){ /* if element found */
                     (*cour)->element->deleted=3;
                     (*cour)->element->deleteCode=old;
-                    _windows_SANDAL2->current->toDelete++;
+		    (*cour)->deleted = 1;
+                    ++_windows_SANDAL2->current->toDelete;
                 }
-                if(!lpNew){
+                if(!lpNew){ /* if list corresponding to new plan not found */
                     lpNew=lp;
                     while(*lpNew && (*lpNew)->code > plan){
                         lpNew=&((*lpNew)->next);
@@ -1232,10 +1280,17 @@ int setPlanElement(Element *e,int displayCode,int plan){
                 }
                 tmp=(PtrElement*)malloc(sizeof(*tmp));
                 if(tmp){
-                    tmp->element=e;
-                    tmp->next=(*lpNew)->last;
-                    (*lpNew)->last=tmp;
+		    tmp->deleted = -1;
+                    tmp->element = e;
+		    tmp->next = NULL;
+		    if((*lpNew)->last){
+			(*lpNew)->last->next = tmp;
+		    }else{
+			(*lpNew)->first = tmp;
+		    }
+		    (*lpNew)->last = tmp;
                     error=0;
+                    ++_windows_SANDAL2->current->toDelete;
                 }
             }
         }
@@ -1539,7 +1594,7 @@ int setDataElement(Element *e,void *data){
 int setFreeDataElement(Element *e,void (*freeData)(void*)){
     int error = 1;
 
-    if(e && freeData){
+    if(e){
         e->freeData=freeData;
         error = 0;
     }
@@ -1633,12 +1688,12 @@ int previousSpriteElement(Element * e){
     return error;
 }
 
-int setWaySpriteAnimationElement(Element * e,int code, int sens){
+int setWaySpriteAnimationElement(Element * e,int code, int side){
     int error = 1;
     ListSprite *ls;
     unsigned i=0;
 
-    if(e && (sens == 1 || !sens || sens == -1) && e->animation->size){
+    if(e && (side == 1 || !side || side == -1) && e->animation->size){
         ls=e->animation->first;
         while(i<e->animation->size && ls->code != code){
             ls=ls->next;
@@ -1646,7 +1701,7 @@ int setWaySpriteAnimationElement(Element * e,int code, int sens){
         }
         if(i<e->animation->size){
             error = 0;
-            ls->sens=sens;
+            ls->side=side;
         }
     }
 

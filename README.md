@@ -1,5 +1,7 @@
 # SANDAL2
 
+Tests: [![tests status](https://gitlab.com/BaptistePR/SANDAL2/badges/master/pipeline.svg)](https://gitlab.com/BaptistePR/SANDAL2/commits/master)
+  
 SANDAL2 is a SDL2 wrapper which purpose is to make object managment and
 graphic display easier.  
 
@@ -15,6 +17,10 @@ website](https://klevh.github.io/SANDAL2/).
 I made this wrapper because I found boresome to have to create a display function for each menu's page, but I ended 
 up going a little further in it. I hope you will enjoy using it, if you have any comment or advice, do not feel shy 
 and tell me (by posting an issue [here](https://github.com/Klevh/SANDAL2/issues/new)) ! I will really appreciate it.
+
+## Contributors
+
+dabaldassin : version 1.2.3  
 
 ## Useful links
 

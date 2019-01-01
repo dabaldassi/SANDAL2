@@ -1,5 +1,7 @@
 # SANDAL2
 
+Tests: [![tests status](https://gitlab.com/BaptistePR/SANDAL2/badges/master/pipeline.svg)](https://gitlab.com/BaptistePR/SANDAL2/commits/master)
+  
 SANDAL2 is a SDL2 wrapper which purpose is to make object managment and
 graphic display easier.  
 
@@ -8,6 +10,10 @@ To generate the Doxygen documentation, use the command:
 <br/>
 To see this read me file with a better display, you can go to [this project's
 website](https://klevh.github.io/SANDAL2/).
+
+## Contributors
+
+dabaldassin : version 1.2.3  
 
 ## Useful links
 
@@ -61,27 +67,43 @@ From this "read-me", you can either go to :
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rennaming resizeElement to setDimensionElement<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;adding functions getCoordXElement, getCoordYElement, getWidthElement, getHeightElement, setCoordXElement, setCoordYElement, setWidthElement and setHeightElement<br/>
 1.2.2 : improving C++ compatibility <br/>
+1.2.3 : adding mouse wheel events and mouse motion events support <br/>
+1.2.4 : bug fix on setPlanElement<br/>
+1.2.5 : bug fix on Clickable and adding iterator for blocking elements of ListClickable<br/>
 
 ## Project's size
 
-Font.c : 268 lines<br/>
-Window.c : 291 lines<br/>
+Clickable.c   : 349 lines<br/>
 DisplayCode.c : 80 lines<br/>
-Sprite.c : 308 lines<br/>
-Clickable.c : 321 lines<br/>
-Element.c : 1,883 lines<br/>
-SANDAL2.c : 856 lines<br/>
+Element.c     : 1,947 lines<br/>
+Font.c        : 268 lines<br/>
+SANDAL2.c     : 1,053 lines<br/>
+Sprite.c      : 344 lines<br/>
+Window.c      : 328 lines<br/>
 <br/>
-Total for source files : 4,015 lines<br/>
+Total for source files : 4,369 lines<br/>
 <br/>
-Font.h : 115 lines<br/>
-Window.h : 279 lines<br/>
+Clickable.h   : 230 lines<br/>
 DisplayCode.h : 78 lines<br/>
-Sprite.h : 195 lines<br/>
-Clickable.h : 219 lines<br/>
-Element.h : 923 lines<br/>
-SANDAL2.h : 201 lines<br/>
+Element.h     : 943 lines<br/>
+Font.h        : 115 lines<br/>
+SANDAL2.h     : 213 lines<br/>
+Sprite.h      : 195 lines<br/>
+Window.h      : 307 lines<br/>
 <br/>
-Total for header files : 2,020 lines<br/>
+Total for header files : 2,081 lines<br/>
 <br/>
-Total : 6,035 lines
+Total without tests : 6,450 lines<br/>
+<br/>
+tests for Clickable   : 274 lines<br/>
+tests for DisplayCode : 67 lines<br/>
+tests for Element     : 0 lines<br/>
+tests for Font        : 85 lines<br/>
+tests for SANDAL2     : 85 lines<br/>
+tests for Sprite      : 216 lines<br/>
+tests for Window      : 0 lines<br/>
+<br/>
+Total for test files : 700 lines<br/>
+<br/>
+<br/>
+Total with tests : 7150 lines<br/>
