@@ -31,11 +31,11 @@ void action(Element * this);
 void click(Element * this);
 
 int main(){
-    int       red[]   = {255,0,0,0};
-    int       green[]  = {0,255,0,0};
-    int       blue[] = {0,0,255,0};
-    int       white[] = {255,255,255,0};
-    int       black[] = {0,0,0,0};
+    int       red[]   = {255,0,0,255};
+    int       green[]  = {0,255,0,255};
+    int       blue[] = {0,0,255,255};
+    int       white[] = {255,255,255,255};
+    int       black[] = {0,0,0,255};
     Element * e;
     
     if(initAllSANDAL2(IMG_INIT_JPG)){
@@ -162,6 +162,9 @@ Here are the events you can define for a window :
 * unClick
 * keyPressed
 * keyReleased
+* wheel
+* onFocus
+* unFocus
 
 ## What's next ?
 
