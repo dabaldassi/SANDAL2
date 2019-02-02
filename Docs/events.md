@@ -31,11 +31,11 @@ void action(Element * this);
 void click(Element * this);
 
 int main(){
-    int       red[]   = {255,0,0,0};
-    int       green[]  = {0,255,0,0};
-    int       blue[] = {0,0,255,0};
-    int       white[] = {255,255,255,0};
-    int       black[] = {0,0,0,0};
+    int       red[]   = {255,0,0,255};
+    int       green[]  = {0,255,0,255};
+    int       blue[] = {0,0,255,255};
+    int       white[] = {255,255,255,255};
+    int       black[] = {0,0,0,255};
     Element * e;
     
     if(initAllSANDAL2(IMG_INIT_JPG)){
@@ -44,7 +44,7 @@ int main(){
     }
 
     /* creation of your window */
-    if(createWindow(400,400,"SANDAL2 - Klevh",0,black,0)){
+    if(!createWindow(400,400,"SANDAL2 - Klevh",0,black,0)){
         puts("Failed to open the window");
 	closeAllSANDAL2();
     }

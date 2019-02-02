@@ -19,11 +19,11 @@ OFILES=$(SRC:.c=.o)
 
 #add the LDFLAGS you need (such as -g or -O), lm already added 
 #-ansi or -std=gnu89 is not compatible with lm on gcc
-LDFLAGS+=
+LDFLAGS+=-fprofile-arcs -ftest-coverage
 
 #your compilation flags, 
 #-ansi or -std=gnu89 are not compatible with -lm on gcc
-CFLAGS=-Wall -Wextra -pedantic -g
+CFLAGS=-g -fprofile-arcs -ftest-coverage -D DEBUG_SDL2_NO_VIDEO
 
 #your program's name
 EXEC=a.out
@@ -34,7 +34,7 @@ CC=gcc
 
 all:$(EXEC)
 
-$(EXEC):$(SANDAL2) $(OFILES) 
+$(EXEC):$(OFILES) $(SANDAL2)
 	$(CC) $^ -o $(EXEC) $(LDFLAGS) $(DEBUG)
 
 $(SANDAL2PATH)/%.o:$(SANDAL2PATH)/%.c
@@ -50,3 +50,6 @@ clean: clear
 
 cleaner:
 	rm *.o $(EXEC)
+
+coverage:
+	gcov ../../Element.c -m

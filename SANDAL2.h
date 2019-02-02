@@ -10,8 +10,8 @@ extern "C" {
 /**
  * @file SANDAL2.h
  * @author Baptiste PRUNIER (KLEVH)
- * @version 1.1.0
- * @brief File to include which includes everything else.
+ * @version 1.3.0
+ * @brief SANDAL2.h is the file to include which includes everything else.
  *  Compilation flags to use :
  *    -lSDL2 -lSDL2_ttf -lSDL2_image -lm
  */
@@ -21,6 +21,10 @@ extern "C" {
  *   WARNING : do not touch this variable, never ... trust me
  */
 extern ListWindow * _windows_SANDAL2;
+
+#ifdef DEBUG_SDL2_NO_VIDEO
+extern Uint32 currentDisplaied;
+#endif
 
 /* -------------------------------------------------------
  * Initialisation et fermeture des outils 
@@ -76,9 +80,9 @@ void closeTextSANDAL2(void);
  * @param SDLFlags : flags of SDL2
  * @param background : color of the background
  * @param displayCode : display code of the window
- * @return 1 if it failed, 0 if not
+ * @return 0 if it failed, the window ID if not
  */
-int createWindow(int width,int height,const char *title,int SDLFlags,int background[4],int displayCode);
+Uint32 createWindow(int width,int height,const char *title,int SDLFlags,int background[4],int displayCode);
 /**
  * @brief close the current windows and go to the next, do not use this one in elements' or windows' binded functions, use shouldCloseWindow() instead
  * @return 1 if it failed, 0 if not

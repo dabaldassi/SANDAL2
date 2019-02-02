@@ -8,11 +8,11 @@ void generate(int plan){
     int ww,wh;
     int x, y, w, h;
     int i;
-    int color[5][4] = {{255,255,255,0},
-		       {255,0,0,0},
-		       {0,255,0,0},
-		       {0,0,255,0},
-		       {255,0,255}};
+    int color[5][4] = {{255,255,255,255},
+		       {255,0,0,255},
+		       {0,255,0,255},
+		       {0,0,255,255},
+		       {255,0,255,255}};
 
     getDimensionWindow(&ww,&wh);
 
@@ -61,7 +61,7 @@ int main(){
     int run     = 1;
     int tps     = 0;
     int ticks   = 0;
-    int noir[4] = {0,0,0,0};
+    int noir[4] = {0,0,0,255};
 
     srand(time(0));
   
@@ -71,8 +71,7 @@ int main(){
     }
 
     /* initialisation de la fenetre */
-    createWindow(400,400,"test",SDL_WINDOW_RESIZABLE,noir,0);
-    if(initIteratorWindow()){
+    if(!createWindow(400,400,"test",SDL_WINDOW_RESIZABLE,noir,0)){
 	closeAllSANDAL2();
 	fprintf(stderr,"Erreur d'ouverture de la fenetre.\n");
 	exit(-1);

@@ -1,6 +1,7 @@
 # SANDAL2
 
-Tests: [![tests status](https://gitlab.com/BaptistePR/SANDAL2/badges/master/pipeline.svg)](https://gitlab.com/BaptistePR/SANDAL2/commits/master)
+[![tests status](https://gitlab.com/BaptistePR/SANDAL2/badges/master/pipeline.svg)](https://gitlab.com/BaptistePR/SANDAL2/commits/master)
+[![coverage report](https://gitlab.com/BaptistePR/SANDAL2/badges/master/coverage.svg)](https://gitlab.com/BaptistePR/SANDAL2/commits/master)
   
 SANDAL2 is a SDL2 wrapper which purpose is to make object managment and
 graphic display easier.  
@@ -19,6 +20,8 @@ up going a little further in it. I hope you will enjoy using it, if you have any
 and tell me (by posting an issue [here](https://github.com/Klevh/SANDAL2/issues/new)) ! I will really appreciate it.
 
 ## Contributors
+
+Huge thanks to dabaldassin for the contribution he had for this project : biggest tester, user and promoter of SANDAL2.  
 
 dabaldassin : version 1.2.3  
 

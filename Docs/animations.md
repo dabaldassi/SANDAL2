@@ -28,7 +28,7 @@ void endJump(Element *this,int code){
 int main(){
     Element * object;
     int run = 1;
-    int black[4] = {0,0,0,0};
+    int black[4] = {0,0,0,255};
     int i;
 
     /* initializing SANDAL2 */
@@ -38,7 +38,7 @@ int main(){
     }
 
     /* initializing the window */
-    if(createWindow(400,400,"SANDAL2 - Klevh",0,black,0)){
+    if(!createWindow(400,400,"SANDAL2 - Klevh",0,black,0)){
         puts("Failed to open the window");
 	closeAllSANDAL2();
 	return -1;

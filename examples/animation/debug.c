@@ -50,8 +50,8 @@ int main(){
     Element * objet;
     int run = 1;
     int tps = 0, ticks = 0;
-    int noir[4] = {0,0,0,0};
-    int rouge[4] = {255,0,0,0};
+    int noir[4] = {0,0,0,255};
+    int rouge[4] = {255,0,0,255};
     int i;
   
     if(initAllSANDAL2(IMG_INIT_JPG)){
@@ -60,8 +60,7 @@ int main(){
     }
 
     /* initialisation de la fenetre */
-    createWindow(400,400,"test",SDL_WINDOW_RESIZABLE,noir,1);
-    if(initIteratorWindow()){
+    if(!createWindow(400,400,"test",SDL_WINDOW_RESIZABLE,noir,1)){
 	closeAllSANDAL2();
 	fprintf(stderr,"Erreur d'ouverture de la fenetre.\n");
 	exit(-1);

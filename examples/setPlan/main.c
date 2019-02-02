@@ -10,10 +10,6 @@ void keyElement(Element * this, SDL_Keycode c){
     
     c = (char)c;
 
-    printf("-------\n");
-    
-    printf("%d\n", this->deleted);
-
     switch(c){
     case 27: /* ESCAP */
 	if(!getDataWindow((void **)&val) && val)
@@ -34,11 +30,11 @@ int main(){
     int       noir[4]      = {0,0,0,0};
     int       i            = 0;
     int       colors[5][4] = {
-	{255,0,0,0},
-	{0,255,0,0},
-	{0,0,255,0},
-	{255,0,255,0},
-	{255,255,255,0}
+	{255,0,0,125},
+	{0,255,0,125},
+	{0,0,255,125},
+	{255,0,255,125},
+	{255,255,255,255}
     };
 
     srand(time(0));
@@ -49,8 +45,7 @@ int main(){
     }
 
     /* initialisation de la fenetre */
-    createWindow(400,400,"test",SDL_WINDOW_RESIZABLE,noir,0);
-    if(initIteratorWindow()){
+    if(!createWindow(400,400,"test",SDL_WINDOW_RESIZABLE,noir,0)){
 	closeAllSANDAL2();
 	fprintf(stderr,"Erreur d'ouverture de la fenetre.\n");
 	exit(-1);
