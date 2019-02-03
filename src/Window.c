@@ -429,6 +429,7 @@ int setFreeDataWindow(void (*freeData)(void *)){
 	_windows_SANDAL2->current->freeData = freeData;
 
     return !(_windows_SANDAL2 && _windows_SANDAL2->current);
+}
 
 int setDisplayWindow(Uint32 windowID){
     Window * window = NULL;

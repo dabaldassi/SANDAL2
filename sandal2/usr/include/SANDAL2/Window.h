@@ -12,6 +12,10 @@ extern "C" {
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 
+#ifdef DEBUG_SDL2_NO_VIDEO
+extern Uint32 currentDisplaied;
+#endif
+
 /**
  * @file Window.h
  * @author Baptiste PRUNIER (KLEVH)
@@ -26,11 +30,11 @@ extern "C" {
  * @brief free p if it is not NULL
  */
 #define PFREE(p){				\
-        if(p){					\
+    if(p){					\
             free(p);                            \
         }                                       \
-    }
-
+}
+  
 struct ListElement;
 struct ListDCElement;
 
@@ -76,8 +80,15 @@ typedef struct Window{
     /**< background color of the window*/
     int origin[2];
     /**< origin of the window (initialized at (0,0)) */
+#ifndef DEBUG_SDL2_NO_VIDEO
     SDL_Window *window;
     /**< true  window*/
+#else
+    unsigned id;
+    struct Window * window;
+    int posX;
+    int posY;
+#endif
     SDL_Renderer *renderer;
     /**<  renderer*/
     struct ListElement * liste;
@@ -98,6 +109,8 @@ typedef struct Window{
     /**< current list of elements to display */
     void * data;
     /**< data of the window */
+    void (*freeData)(void *);
+    /**< free data of the window */
     int stop;
     /**< tells whether or not all elements where removed */
     int state;
@@ -306,6 +319,14 @@ int setDataWindow(void * data);
  * @return 0 if it was possible, 1 if not
  */
 int getDataWindow(void ** data);
+
+  /**
+   * @brief set a function to free window data
+   * @param freeData : function to free data
+   * @return 0 if it was possible, 1 if not
+   */
+int setFreeDataWindow(void (*freeData)(void *));
+
 /**
  * @brief set the window to be displaied and the current window
  * @param windowID : ID of the window to be displaied and to become current
