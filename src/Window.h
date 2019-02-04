@@ -332,7 +332,6 @@ int setFreeDataWindow(void (*freeData)(void *));
  * @return 0 if it was possible, 1 if not
  */
 int setDisplayWindow(Uint32 windowID);
-
 /* ------------------------------------------------------- */
 
 #ifdef __cplusplus

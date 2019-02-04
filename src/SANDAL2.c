@@ -187,10 +187,6 @@ static void freeWindow(Window *fen){
         if(fen->window){
             SDL_DestroyWindow(fen->window);
         }
-	if(fen->freeData && fen->data) {
-	    fen->freeData(fen->data);
-	    fen->data = NULL;
-	}
     }
 }
 
