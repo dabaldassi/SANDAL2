@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(castor)
+project(SANDAL2)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -23,6 +23,7 @@ target_link_libraries(sandal2a
   ${SDL2_LIBRARIES}
   ${SDL2TTF_LIBRARIES}
   ${SDL2IMAGE_LIBRARIES}
+  m
   )
 
 add_library(sandal2 SHARED EXCLUDE_FROM_ALL ${sandal2_sources})
@@ -31,6 +32,16 @@ target_link_libraries(sandal2
   ${SDL2TTF_LIBRARIES}
   ${SDL2IMAGE_LIBRARIES}
   )
+
+file(GLOB ex_dir examples/*)
+add_custom_target(examples)
+foreach(examples ${ex_dir})
+  file(GLOB_RECURSE example_sources ${examples}/*.c)
+  get_filename_component(example ${examples} NAME)
+  add_executable(${example} EXCLUDE_FROM_ALL ${example_sources})
+  target_link_libraries(${example} sandal2a)
+  add_dependencies(examples ${example})
+endforeach(examples)
 
 # install(
 #   TARGETS sandal2

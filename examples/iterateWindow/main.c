@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../../SANDAL2.h"
+#include "SANDAL2.h"
 
 void keyWindow(SDL_Keycode c){
     static int start = 1;
