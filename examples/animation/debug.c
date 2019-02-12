@@ -69,10 +69,10 @@ int main(){
     setOriginWindow(0,0);
     setDataWindow(&run);
     
-    objet=createText(150.f,100.f,50.f,50.f,30.f,"arial.ttf","OK",rouge,2,1,-1);
+    objet=createText(150.f,100.f,50.f,50.f,30.f,"../downloadable/arial.ttf","OK",rouge,2,1,-1);
     setTextStyleElement(objet,SANDAL2_STRIKETHROUGH);
 
-    objet = createImage(150.f,100.f,100.f,200.f,"spritesheet.jpg",1,0);
+    objet = createImage(150.f,100.f,100.f,200.f,"../downloadable/spritesheet.jpg",1,0);
     addClickableElement(objet,rectangleClickable(0.f,0.f,1.f,1.f),0);
   
     addAnimationElement(objet,0);

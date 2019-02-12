@@ -68,6 +68,7 @@ int main(){
 	ticks = 16 - SDL_GetTicks() + tps;
 	if(ticks>0)
 	    SDL_Delay(ticks);
+
     }
 
     closeAllWindow();

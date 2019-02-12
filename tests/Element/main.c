@@ -1,4 +1,4 @@
-#include "../../SANDAL2.h"
+#include "../../src/SANDAL2.h"
 
 #define LASSERT_MANUAL_MAIN
 #include "../LAssert/LAssert.h"

@@ -26,7 +26,7 @@ target_link_libraries(sandal2a
   m
   )
 
-add_library(sandal2 SHARED EXCLUDE_FROM_ALL ${sandal2_sources})
+add_library(sandal2 SHARED ${sandal2_sources})
 target_link_libraries(sandal2
   ${SDL2_LIBRARIES}
   ${SDL2TTF_LIBRARIES}
@@ -43,9 +43,18 @@ foreach(examples ${ex_dir})
   add_dependencies(examples ${example})
 endforeach(examples)
 
-# install(
-#   TARGETS sandal2
-#   LIBRARY DESTINATION lib
-#   INCLUDES DESTINATION header
-#   CONFIGURATION Release
-#   )
+add_custom_target(tests
+  COMMAND cd ../tests && ./build.sh && ./run.sh)
+
+file(GLOB header src/*.h)
+
+install(
+  TARGETS sandal2
+  LIBRARY DESTINATION /tmp/lib
+  CONFIGURATIONS Release
+  )
+
+install(
+  FILES ${header}
+  DESTINATION /tmp/includes
+  )
